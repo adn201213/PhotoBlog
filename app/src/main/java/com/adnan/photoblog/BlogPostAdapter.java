@@ -87,7 +87,7 @@ public class BlogPostAdapter extends RecyclerView.Adapter<BlogPostAdapter.BlogPo
     private FirebaseAuth firebaseAuth;
     SharedPreferences sharedpreferences;
     private static final String TAG = "BlogPostAdapter";
-    String post_userName;
+    String post_userNameId;
     public BlogPostAdapter(List<BlogPost> blog_list,List<User> user_list){
         this.blog_list=blog_list;
         this.user_list=user_list;
@@ -119,7 +119,8 @@ holder.updateCommentCount(blogPostId);
      //Set Image
         String image_uri=blog_list.get(position).getImageOriginalUri();
         String imageThumbs_uri=blog_list.get(position).getImageThumbUri();
-         post_userName=blog_list.get(position).getUser_id();
+         post_userNameId=blog_list.get(position).getUser_id();
+
         holder.setBlogImage(image_uri,imageThumbs_uri);
         //set user data username and image
         String blog_user_id=blog_list.get(position).getUser_id();
@@ -188,7 +189,10 @@ holder.updateCommentCount(blogPostId);
                         Log.i(TAG, "onComplete:userToken " +userToken);
                       //  Log.i(TAG, "onComplete:userToken "+userToken);
                         //this mrthod to send notification
-                        holder.setFcmNotificationData( position);
+                        Log.i(TAG, "onComplete:if "+post_userNameId +"  "+currentUserId );
+                        if(!post_userNameId.equals(currentUserId)) {
+                            holder.setFcmNotificationData(position);
+                        }
                     } else {
                         firebaseFirestore.collection("posts/" + blogPostId + "/Likes")
                                 .document(currentUserId).delete();
@@ -464,6 +468,7 @@ private void sendRetrofitNotification(String token1,String imageUrl,String fromU
                                                     String post_userName1=user_list.get(position).name;
                                                     String desc1=blog_list.get(position).getDesc();
                                                     String  post_userToken=task.getResult().getString("token");
+                                                    String  post_userId=blog_list.get(position).getUser_id();
                                                     Log.i(TAG, "onComplete:post_userTokennew String post_userName1 "+ post_userName1 +" "+post_userToken);
                                                     Log.i(TAG, "onComplete:post_userTokennew " +desc1);
                                                     //Share Preferences to save the notification data, so I can send and use them in Comment Activity
@@ -474,6 +479,8 @@ private void sendRetrofitNotification(String token1,String imageUrl,String fromU
                                                     editor.putString("currentUsername", currentUsername);
                                                     editor.putString("post_userName1", post_userName1);
                                                     editor.putString("desc1", desc1);
+                                                    editor.putString("currentUserId", currentUserId);
+                                                    editor.putString("post_userId", post_userId);
                                                     editor.commit();
 
                                                 }

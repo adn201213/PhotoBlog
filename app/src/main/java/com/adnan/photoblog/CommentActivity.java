@@ -130,9 +130,14 @@ public class CommentActivity extends AppCompatActivity {
                 String currentUsername=sharedPreferences.getString("currentUsername","no currentUsername");
                 String post_userName1=sharedPreferences.getString("post_userName1","no post_userName1");
                 String desc1=sharedPreferences.getString("desc1","no desc1");
+                String currentUserId=sharedPreferences.getString("currentUserId","no currentUserId");
+                String post_userId=sharedPreferences.getString("post_userId","no post_userId");
                 Log.i(TAG, "onComplete:desc1 " +desc1);
                 Log.i(TAG, "onComplete:desc1 " +userToken);
-                sendRetrofitNotification(userToken,currentUserImage,currentUsername,post_userName1,desc1);
+                Log.i(TAG, "onComplete:if "+post_userId +"  "+currentUserId );
+                if(!post_userId.equals(current_user_id)) {
+                    sendRetrofitNotification(userToken, currentUserImage, currentUsername, post_userName1, desc1);
+                }
             }
         });
     }
