@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    app:cardBackgroundColor="@color/white"
+    app:cardUseCompatPadding="true"
+    app:cardCornerRadius="@dimen/_2sdp"
+    app:cardElevation="@dimen/_2sdp"
+    app:contentPadding="@dimen/_3sdp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/notification_list_circleImageView_from_user_image"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/mainactivity_bottomview_person_icon"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/notification_list_tv_from_user_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="name"
+                android:textSize="@dimen/_18ssp"
+                android:textStyle="bold"
+                android:textColor="@color/black"/>
+            <TextView
+                android:id="@+id/notification_list_tv_message"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Notification"
+                android:textSize="@dimen/_18ssp"
+                android:textStyle="bold"
+                android:textColor="@color/black"/>
+            <TextView
+                android:id="@+id/notification_list_tv_post_desc"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Notification"
+                android:textSize="@dimen/_18ssp"
+                android:textStyle="bold"
+                android:textColor="@color/black"/>
+            <TextView
+                android:id="@+id/notification_list_tv_date"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Notification"
+                android:textSize="@dimen/_18ssp"
+                android:textStyle="bold"
+                android:textColor="@color/black"/>
+        </LinearLayout>
+        </LinearLayout>
+
+
+</androidx.cardview.widget.CardView>

@@ -158,6 +158,7 @@ public class HomeFragment extends Fragment {
                                                 //  blogPostId = blog_list.get(viewHolder.getAdapterPosition()).BlogPostId;
                                                 String currentUserId = firebaseAuth.getCurrentUser().getUid();
                                                 String blog_user_id = blog_list.get(viewHolder.getAdapterPosition()).getUser_id();
+
                                                 Log.i(TAG, "onSuccess:deleteswip" + currentUserId + " " + blog_user_id);
                                                 if (blog_user_id.equals(currentUserId)) {
                                                     blog_list.remove(viewHolder.getAdapterPosition());
@@ -165,6 +166,7 @@ public class HomeFragment extends Fragment {
                                                     blogPostAdapter.setBlog_list(blog_list);
                                                     blogPostAdapter.setUser_list(user_list);
                                                     blogPostAdapter.notifyDataSetChanged();
+
                                                 }
                                             }
                                         }

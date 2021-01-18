@@ -44,6 +44,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GetTokenResult;
+import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
@@ -86,6 +87,7 @@ public class BlogPostAdapter extends RecyclerView.Adapter<BlogPostAdapter.BlogPo
     private FirebaseFirestore firebaseFirestore;
     private FirebaseAuth firebaseAuth;
     SharedPreferences sharedpreferences;
+
     private static final String TAG = "BlogPostAdapter";
     String post_userNameId;
     public BlogPostAdapter(List<BlogPost> blog_list,List<User> user_list){
@@ -111,8 +113,9 @@ public class BlogPostAdapter extends RecyclerView.Adapter<BlogPostAdapter.BlogPo
     public void onBindViewHolder(@NonNull BlogPostViewHolder holder, int position) {
             holder.setIsRecyclable(false);
       String blogPostId=blog_list.get(position).BlogPostId;
-holder.updateCommentCount(blogPostId);
-        String currentUserId=firebaseAuth.getCurrentUser().getUid();
+        Log.i(TAG, "onComplete:blogPostIdup " +blogPostId );
+      holder.updateCommentCount(blogPostId);
+      String currentUserId=firebaseAuth.getCurrentUser().getUid();
         //Set Description Text
      String desc=blog_list.get(position).getDesc();
      holder.setDescText(desc);
@@ -124,6 +127,8 @@ holder.updateCommentCount(blogPostId);
         holder.setBlogImage(image_uri,imageThumbs_uri);
         //set user data username and image
         String blog_user_id=blog_list.get(position).getUser_id();
+
+
         holder.blogDeleteButton.setEnabled(false);
         if(blog_user_id.equals(currentUserId)){
             holder.blogDeleteButton.setEnabled(true);
@@ -177,7 +182,10 @@ holder.updateCommentCount(blogPostId);
                     @Override
                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if(task.isSuccessful()) {
+                  //  String blogPostId1=blog_list.get(position).BlogPostId;
                     if (!task.getResult().exists()) {
+
+
                         Map<String, Object> likesMap = new HashMap<>();
                         likesMap.put("timestamp", FieldValue.serverTimestamp());
                         likesMap.put("blogPostId", blogPostId);
@@ -188,11 +196,20 @@ holder.updateCommentCount(blogPostId);
                         String userToken=user_list.get(position).getToken();
                         Log.i(TAG, "onComplete:userToken " +userToken);
                       //  Log.i(TAG, "onComplete:userToken "+userToken);
-                        //this mrthod to send notification
+                        //this save notification on firebase
+
+//                        Map<String, Object> notificationMap = new HashMap<>();
+//                        notificationMap.put("timestamp", FieldValue.serverTimestamp());
+//                        notificationMap.put("blogPostId", blogPostId);
+//                        notificationMap.put("currentUserId", currentUserId);
+//                        firebaseFirestore.collection("usersPhotoBlog/" +currentUserId+ "/notifications")
+//                                .add(notificationMap);
+
                         Log.i(TAG, "onComplete:if "+post_userNameId +"  "+currentUserId );
-                        if(!post_userNameId.equals(currentUserId)) {
-                            holder.setFcmNotificationData(position);
-                        }
+                      // if(!(post_userNameId).equals(currentUserId)) {
+                            holder.setFcmNotificationData(position,blog_list.get(position).BlogPostId);
+                        Log.i(TAG, "onComplete:blogPostIddown " +blog_list.get(position).BlogPostId );
+                      //  }
                     } else {
                         firebaseFirestore.collection("posts/" + blogPostId + "/Likes")
                                 .document(currentUserId).delete();
@@ -266,7 +283,7 @@ holder.imageViewCommentsBtn.setOnClickListener(new View.OnClickListener() {
     private ImageView imageViewPostImage;
      private CircleImageView blogImageView;
         private ImageView testImage;
-private Context context;
+     private Context context;
      //likes and text view
         private ImageView likesImageViewBtn;
         private TextView textViewLikesCount;
@@ -364,6 +381,17 @@ private Context context;
                 }
             });
         }
+        public void saveNotificationOnFireBase(String userPostId,String blogPostId,String currentUserId){
+            Map<String, Object> likesMap = new HashMap<>();
+            likesMap.put("timestamp", FieldValue.serverTimestamp());
+            likesMap.put("blogPostId", blogPostId);
+            firebaseFirestore.collection("usersPhotoBlog/" +currentUserId+ "/notifications")
+                    .add(likesMap);
+//            String userName=user_list.get(position).getName();
+//            String userImage=user_list.get(position).getImage();
+//            String userToken=user_list.get(position).getToken();
+
+        }
 
 private void sendRetrofitNotification(String token1,String imageUrl,String fromUser,String toUser,String desc1) {
     Log.i(TAG, "onResponse: " + "Notification send successful outside");
@@ -405,9 +433,8 @@ private void sendRetrofitNotification(String token1,String imageUrl,String fromU
             payload.add("data", data);
             return payload;
         }
-
         //this method to save notification data in shared prefrencs and get data anywhere
-        public void setFcmNotificationData(int position){
+        public void setFcmNotificationData(int position,String blogPostId){
             String currentUserId=firebaseAuth.getCurrentUser().getUid();
             firebaseFirestore.collection("usersPhotoBlog").document(currentUserId).get()
                     .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -431,9 +458,32 @@ private void sendRetrofitNotification(String token1,String imageUrl,String fromU
                                                     String desc1=blog_list.get(position).getDesc();
                                                    String  post_userToken=task.getResult().getString("token");
                                                     Log.i(TAG, "onComplete:post_userTokennew String post_userName1 "+ post_userName1 +" "+post_userToken);
-
                                                     Log.i(TAG, "onComplete:post_userTokennew " +desc1);
                                                     sendRetrofitNotification(post_userToken,currentUserImage,currentUsername ,post_userName1, desc1);
+                                                    Map<String, Object> notificationMap = new HashMap<>();
+                                                    notificationMap.put("timestamp", FieldValue.serverTimestamp());
+                                                    notificationMap.put("blogPostId", blogPostId);
+                                                    notificationMap.put("currentUserId", currentUserId);
+                                                    notificationMap.put("userToken", post_userToken);
+                                                    notificationMap.put("fromUserNameImageUri", currentUserImage);
+                                                    notificationMap.put("fromUserName", currentUsername);//user who do like or comment
+                                                    notificationMap.put("toUserName", post_userName1);//user who receive like or comment
+                                                    notificationMap.put("desc1", desc1);
+                                                    notificationMap.put("post_userId", post_userId);
+                                                    notificationMap.put("type","likes");
+
+                                                    firebaseFirestore.collection("notifications")
+                                                            .add(notificationMap).addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
+                                                        @Override
+                                                        public void onComplete(@NonNull Task<DocumentReference> task) {
+                                                            if(task.isSuccessful()){
+
+                                                                Log.i(TAG, "onComplete: notification was add successfuly");
+                                                            }else{
+                                                                Log.i(TAG, "onComplete: "+task.getException().getMessage());
+                                                            }
+                                                        }
+                                                    });
 
                                                     }
                                                 }
@@ -469,6 +519,7 @@ private void sendRetrofitNotification(String token1,String imageUrl,String fromU
                                                     String desc1=blog_list.get(position).getDesc();
                                                     String  post_userToken=task.getResult().getString("token");
                                                     String  post_userId=blog_list.get(position).getUser_id();
+
                                                     Log.i(TAG, "onComplete:post_userTokennew String post_userName1 "+ post_userName1 +" "+post_userToken);
                                                     Log.i(TAG, "onComplete:post_userTokennew " +desc1);
                                                     //Share Preferences to save the notification data, so I can send and use them in Comment Activity
@@ -481,6 +532,8 @@ private void sendRetrofitNotification(String token1,String imageUrl,String fromU
                                                     editor.putString("desc1", desc1);
                                                     editor.putString("currentUserId", currentUserId);
                                                     editor.putString("post_userId", post_userId);
+                                                    editor.putString("timestamp", String.valueOf(FieldValue.serverTimestamp()));
+
                                                     editor.commit();
 
                                                 }

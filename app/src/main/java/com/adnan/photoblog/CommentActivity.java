@@ -137,6 +137,31 @@ public class CommentActivity extends AppCompatActivity {
                 Log.i(TAG, "onComplete:if "+post_userId +"  "+currentUserId );
                 if(!post_userId.equals(current_user_id)) {
                     sendRetrofitNotification(userToken, currentUserImage, currentUsername, post_userName1, desc1);
+                    Map<String, Object> notificationMap = new HashMap<>();
+                    notificationMap.put("timestamp", FieldValue.serverTimestamp());
+                    notificationMap.put("blogPostId", blogPostId);
+                    notificationMap.put("currentUserId", currentUserId);
+                    notificationMap.put("userToken", userToken);
+                    notificationMap.put("fromUserNameImageUri", currentUserImage);
+                    notificationMap.put("fromUserName", currentUsername);//user who do like or comment
+                    notificationMap.put("toUserName", post_userName1);//user who receive like or comment
+                    notificationMap.put("desc1", desc1);
+                    notificationMap.put("post_userId", post_userId);
+                    notificationMap.put("type","comments");
+
+                    firebaseFirestore.collection("notifications")
+                            .add(notificationMap).addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
+                        @Override
+                        public void onComplete(@NonNull Task<DocumentReference> task) {
+                            if(task.isSuccessful()){
+
+                                Log.i(TAG, "onComplete: notification was add successfuly");
+                            }else{
+                                Log.i(TAG, "onComplete: "+task.getException().getMessage());
+                            }
+                        }
+                    });
+
                 }
             }
         });
